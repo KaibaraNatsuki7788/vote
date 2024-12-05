@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <style>
+    body,
+    button {
+      background-color: #223670;
+      color: #d0a900;
+      font-family: 'Noto Serif JP', serif;
+      font-optical-sizing: auto;
+      font-weight: weight;
+      font-style: normal;
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+    }
+
+    .sentence {
+      border: 1px solid #d0a900;
+      width: 80%;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .warn{
+      text-align: center;
+    }
+
+    .vote {
+      padding-top: 30px;
+      width: 50%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .btn {
+      margin-top: 50px;
+      background: linear-gradient(135deg, #a77e58, #d3a374);
+      color: #fff;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #d3a374, #a77e58);
+      transform: translateY(-2px);
+      box-shadow: 0px 6px;
+    }
+  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200..900&family=Ubuntu:ital@1&display=swap"
+      rel="stylesheet"
+    />
+    <title>プロジェクト概要</title>
+  </head>
+  <body>
+    <h1>特別ユニット結成プロジェクト</h1>
+    <h2>大切なファンの皆様へ</h2>
+    <div class="sentence">
+      <p>
+        いつも温かいご声援ありがとうございます。当事務所では設立60周年を記念して、特別プロジェクトが始動します!
+      </p>
+      <p><strong>
+        なんと、ファンの皆さまの投票で、約40名のアイドルから選ばれた上位5名が記念シングルをリリースします!
+      </p></strong>
+      <p>
+        シングルを初披露する場として紅白歌合戦への出場も決定しており、あなたの推しメンを輝かせるチャンスです！
+      </p>
+      <p>シングル曲はアイドル感満載の神曲を現在制作中!</p>
+      <p>King&Princeの「シンデレラガール」やHey!Say!JUMPの「White Love」が大好きな方は必見です!</p>
+      <p>あなたの推しをあなたの力でTOP5に連れていってみませんか？</p>
+    </div>
+
+    <div class="warn">
+      <p>※投票には当事務所所属グループのCDを購入した際についてくるシリアルナンバーが必要です※</p>
+    </div>
+    <div class="vote">
+      <p>シリアルナンバーを入力してください。</p>
+      {% if error %}
+      <p style="color: red">{{ error }}</p>
+      {% endif %}
+      <form action="/verify_serial" method="post">
+        <label for="serial_number">シリアルナンバー</label><br />
+        <input
+          type="text"
+          id="serial_number"
+          name="serial_number"
+          required
+        /><br />
+        <button class="btn btn-gradient" type="submit">
+          <span>投票ページへ進む</span>
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

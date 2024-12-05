@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>メッセージ送信</title>
+  </head>
+  <body>
+    <h1>メッセージ送信</h1>
+
+    <!-- 投票したアイドルの名前を表示 -->
+    <p>投票したアイドル: {{ candidate.name }}</p>
+
+    <!-- メッセージ送信用フォーム -->
+    <form action="/send_message" method="POST">
+      <textarea
+        name="message"
+        placeholder="アイドルへのメッセージを入力してください"
+      ></textarea>
+      <button type="submit">送信</button>
+    </form>
+  </body>
+</html>

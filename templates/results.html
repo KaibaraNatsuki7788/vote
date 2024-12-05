@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <style>
+    body,
+    button {
+      background-color: #223670;
+      color: #d0a900;
+      font-family: 'Noto Serif JP', serif;
+      font-optical-sizing: auto;
+      font-weight: weight;
+      font-style: normal;
+    }
+
+    .sel {
+      font-family: 'Noto Serif JP', serif;
+      font-optical-sizing: auto;
+      font-weight: weight;
+      font-style: normal;
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 5px;
+      height: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      padding-top: 80px;
+    }
+
+    #back {
+      text-decoration: none;
+      float: right;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #a77e58, #d3a374);
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease-in-out;
+    }
+
+    #back:hover {
+      background: linear-gradient(135deg, #d3a374, #a77e58);
+      transform: translateY(-2px);
+      box-shadow: 0px 6px;
+    }
+  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>投票結果</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h1>投票結果</h1>
+    <a id="back" href="/">トップページに戻る</a>
+    <h1>メッセージ送信</h1>
+
+    <!-- 投票したアイドルの名前を表示 -->
+    <p>投票したアイドル: {{ candidate.name }}</p>
+
+    <!-- メッセージ送信用フォーム -->
+    <form action="/send_message" method="POST">
+      <textarea
+        name="message"
+        placeholder="アイドルへのメッセージを入力してください"
+      ></textarea>
+      <button type="submit">送信</button>
+    </form>
+    <!-- 棒グラフを表示するためのcanvasタグ -->
+    <canvas id="voteChart"></canvas>
+
+    <script>
+          // 順位ごとの色を設定する配列（5位ごとに変化）
+          const colors = [
+            'rgba(54, 162, 235, 0.2)', // 1位〜5位
+            'rgba(255, 99, 132, 0.2)', // 6位〜10位
+            'rgba(255, 206, 86, 0.2)', // 11位〜15位
+            'rgba(75, 192, 192, 0.2)', // 16位〜20位
+            'rgba(153, 102, 255, 0.2)', // 21位〜25位
+            'rgba(255, 159, 64, 0.2)', // 26位〜30位
+            'rgba(199, 199, 199, 0.2)', // 31位〜35位
+            'rgba(255, 99, 71, 0.2)',  // 36位〜40位
+            'rgba(0, 128, 128, 0.2)',  // 41位〜45位
+            'rgba(128, 0, 128, 0.2)'   // 46位〜50位
+          ];
+
+          // グラフに表示するデータ
+          const ctx = document.getElementById('voteChart').getContext('2d');
+          const labels = [
+            {% for candidate in candidate %}
+              '{{ candidate.name }}'{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          ];
+          const data = [
+            {% for candidate in candidate %}
+              {{ candidate.votes }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          ];
+
+          // 色を順位に応じて設定
+          const backgroundColors = labels.map((_, index) => {
+            const rankGroup = Math.floor(index / 5); // 5位ごとに色を変える
+            return colors[rankGroup] || 'rgba(0, 0, 0, 0.2)'; // デフォルト色
+          });
+
+          const voteChart = new Chart(ctx, {
+            type: 'bar',  // 棒グラフを指定
+            data: {
+              labels: labels,  // 横軸のラベル（候補者名）
+              datasets: [{
+                label: '投票数',
+                data: data,  // 投票数
+                backgroundColor: backgroundColors,  // 順位ごとの背景色
+                borderColor: backgroundColors.map(color => color.replace('0.2', '1')),  // 境界線の色
+                borderWidth: 1
+              }]
+            },
+            options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: 'white'  // Y軸の数字の色を白に
+            }
+          },
+          x: {
+            ticks: {
+              color: 'white'  // X軸のラベルの色を白に
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'white'  // 凡例の文字色を白に
+            }
+          },
+          tooltip: {
+            titleColor: 'white',  // ツールチップのタイトルの色を白に
+            bodyColor: 'white'    // ツールチップの内容の色を白に
+          }
+        }
+      }
+          });
+    </script>
+  </body>
+</html>
