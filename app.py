@@ -1,3 +1,4 @@
+# 12-05の状態
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, session,url_for
 from flask_sqlalchemy import SQLAlchemy
