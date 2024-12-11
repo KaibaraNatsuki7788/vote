@@ -1,3 +1,4 @@
+# いらないと思うけど一応残しておく
 from app import db, Candidate,app
 
 def seed_candidates():

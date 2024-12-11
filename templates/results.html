@@ -58,19 +58,20 @@
   <body>
     <h1>投票結果</h1>
     <a id="back" href="/">トップページに戻る</a>
-    <h1>メッセージ送信</h1>
+    <!-- <h1>メッセージ送信</h1> -->
 
     <!-- 投票したアイドルの名前を表示 -->
-    <p>投票したアイドル: {{ candidate.name }}</p>
+    <!-- {% for candidate in candidate %} {{ candidate.name }}{% if not loop.last %},
+    {% endif %} {% endfor %} -->
 
     <!-- メッセージ送信用フォーム -->
-    <form action="/send_message" method="POST">
+    <!-- <form action="/send_message" method="POST">
       <textarea
         name="message"
         placeholder="アイドルへのメッセージを入力してください"
       ></textarea>
       <button type="submit">送信</button>
-    </form>
+    </form> -->
     <!-- 棒グラフを表示するためのcanvasタグ -->
     <canvas id="voteChart"></canvas>
 
