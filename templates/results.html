@@ -24,7 +24,6 @@
 
     h1 {
       text-align: center;
-      padding-top: 80px;
     }
 
     #back {
@@ -48,6 +47,11 @@
       transform: translateY(-2px);
       box-shadow: 0px 6px;
     }
+
+    .you_sel {
+      text-align: center;
+      transform: translateX(7.2%);
+    }
   </style>
   <head>
     <meta charset="UTF-8" />
@@ -57,13 +61,13 @@
   </head>
   <body>
     <h1>投票結果</h1>
-    <a id="back" href="/">トップページに戻る</a>
-    <!-- <h1>メッセージ送信</h1> -->
 
-    <!-- 投票したアイドルの名前を表示 -->
-    <!-- {% for candidate in candidate %} {{ candidate.name }}{% if not loop.last %},
-    {% endif %} {% endfor %} -->
-
+    <div class="you_sel">
+      <a id="back" href="/">トップページに戻る</a>
+      <!-- 投票したアイドルの名前を表示 -->
+      <p>投票ありがとうございました！</p>
+      <p>あなたが投票したアイドル：{{ candidate.name }}</p>
+    </div>
     <!-- メッセージ送信用フォーム -->
     <!-- <form action="/send_message" method="POST">
       <textarea
@@ -93,12 +97,12 @@
           // グラフに表示するデータ
           const ctx = document.getElementById('voteChart').getContext('2d');
           const labels = [
-            {% for candidate in candidate %}
+            {% for candidate in all_candidates %}
               '{{ candidate.name }}'{% if not loop.last %}, {% endif %}
             {% endfor %}
           ];
           const data = [
-            {% for candidate in candidate %}
+            {% for candidate in all_candidates %}
               {{ candidate.votes }}{% if not loop.last %}, {% endif %}
             {% endfor %}
           ];

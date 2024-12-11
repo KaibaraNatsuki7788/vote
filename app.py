@@ -79,7 +79,10 @@ def vote():
     serial_number = session.get('serial_number')  # セッションから取得
     candidate_id = request.form.get('candidate')
     session['candidate_id'] = candidate_id
+    #投票したアイドルを取得
     candidate = Candidate.query.get(candidate_id)
+    # 全てのアイドルのデータを取得（ランキング用）
+    all_candidates = Candidate.query.order_by(Candidate.votes.desc()).all()
     
      # デバッグ用ログ
     logging.debug(f"[Vote Function] serial_number: {serial_number}, candidate_id: {candidate_id}")
@@ -92,7 +95,7 @@ def vote():
         lovemessage = LoveMessage(candidate_id=candidate_id, serial_number=serial_number)
         db.session.add(lovemessage)
         db.session.commit()  # データベースに変更を保存
-    return redirect('/results')  # 投票後にトップページにリダイレクト
+    return render_template('results.html',candidate=candidate,all_candidates=all_candidates)  # 投票後にトップページにリダイレクト
 
 @app.route('/results')
 def results():
