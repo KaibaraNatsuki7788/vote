@@ -92,8 +92,8 @@ def vote():
 
     if candidate:
         candidate.votes += 1  # 投票数を1増加
-        lovemessage = LoveMessage(candidate_id=candidate_id, serial_number=serial_number)
-        db.session.add(lovemessage)
+        # lovemessage = LoveMessage(candidate_id=candidate_id, serial_number=serial_number)
+        # db.session.add(lovemessage)
         db.session.commit()  # データベースに変更を保存
     return render_template('results.html',candidate=candidate,all_candidates=all_candidates)  # 投票後にトップページにリダイレクト
 
@@ -135,7 +135,6 @@ def send_message():
     db.session.commit()
 
     return render_template('message.html', candidate=candidate)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
