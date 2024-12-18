@@ -63,6 +63,12 @@
       rel="stylesheet"
     />
     <title>プロジェクト概要</title>
+    <script>
+    // ポップアップメッセージを表示する関数
+    function showMessage(message) {
+        alert(message);  // ブラウザの標準ポップアップ
+    }
+  </script>
   </head>
   <body>
     <h1>特別ユニット結成プロジェクト</h1>
@@ -103,5 +109,15 @@
         </button>
       </form>
     </div>
+      <!-- Flaskのflashメッセージをポップアップで表示 -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+          <script>
+              {% for category, message in messages %}
+                  showMessage("{{ message }}");
+              {% endfor %}
+          </script>
+      {% endif %}
+  {% endwith %}
   </body>
 </html>

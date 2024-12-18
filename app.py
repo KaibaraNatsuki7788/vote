@@ -1,12 +1,16 @@
-# 12-05の状態
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, session,url_for
-from flask_sqlalchemy import SQLAlchemy
 
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, session,url_for,flash
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine, Column, String, Boolean, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # 必須（Flaskのflash機能で必要）
+
 
 # データベースの設定（PostgreSQL への接続）
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/vote_db'
@@ -30,15 +34,7 @@ class SerialNumber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     serial_number = db.Column(db.String(255), unique=True, nullable=False)
     used = db.Column(db.Boolean, default=False)
-
-class LoveMessage(db.Model):
-    __tablename__ = 'lovemessage'
-    id = db.Column(db.Integer, primary_key=True)
-    serial_number = db.Column(db.String(255), db.ForeignKey('serial_numbers.serial_number'), nullable=False)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now())  # 修正箇所
-
-    candidate = db.relationship('Candidate', backref='lovemessages')
+    expires_at = db.Column(DateTime)
 
 @app.route('/')
 def overview():
@@ -47,11 +43,14 @@ def overview():
 @app.route('/verify_serial', methods=['POST'])
 def verify_serial():
     serial_number = request.form['serial_number']
+    now = datetime.now()
     serial_entry = SerialNumber.query.filter_by(serial_number=serial_number, used=False).first()
 
     logging.debug(f"[Verify Serial] Received serial_number: {serial_number}")
         
     if serial_entry:
+        if serial_entry.expires_at < now:
+         return render_template('overview.html', error="期限切れのシリアルナンバーです")
         # 検証成功
         logging.debug(f"[Verify Serial] Found serial entry: {serial_entry}")
              # 検証成功、シリアルナンバーを「使用済み」にマーク
@@ -76,13 +75,18 @@ def index():
 # 投票処理
 @app.route('/vote', methods=['POST'])
 def vote():
+
+    # すでに投票済みの場合はエラーメッセージを表示
+    if session.get('voted', False):
+        flash('既に投票済みです。')  # メッセージを保存
+        return redirect(url_for('overview'))
+    
     serial_number = session.get('serial_number')  # セッションから取得
     candidate_id = request.form.get('candidate')
     session['candidate_id'] = candidate_id
     #投票したアイドルを取得
     candidate = Candidate.query.get(candidate_id)
-    # 全てのアイドルのデータを取得（ランキング用）
-    all_candidates = Candidate.query.order_by(Candidate.votes.desc()).all()
+
     
      # デバッグ用ログ
     logging.debug(f"[Vote Function] serial_number: {serial_number}, candidate_id: {candidate_id}")
@@ -92,49 +96,17 @@ def vote():
 
     if candidate:
         candidate.votes += 1  # 投票数を1増加
-        # lovemessage = LoveMessage(candidate_id=candidate_id, serial_number=serial_number)
-        # db.session.add(lovemessage)
         db.session.commit()  # データベースに変更を保存
+        # 全てのアイドルのデータを取得（ランキング用）
+        all_candidates = Candidate.query.order_by(Candidate.votes.desc()).all()
+        # セッションに投票済みフラグを設定
+        session['voted'] = True
     return render_template('results.html',candidate=candidate,all_candidates=all_candidates)  # 投票後にトップページにリダイレクト
 
 @app.route('/results')
 def results():
     candidates = Candidate.query.order_by(Candidate.votes.desc()).all()
     return render_template('results.html', candidate=candidates)
-
-@app.route('/message', methods=['GET', 'POST'])
-def send_message():
-    # シリアルナンバーをセッションから取得（ログイン済みと仮定）
-    serial_number = session.get('serial_number')# セッションから取得
-
-    mes_info = db.session.query(SerialNumber, Candidate).join(
-        Candidate, SerialNumber.candidate_id == Candidate.id
-    ).filter(SerialNumber.serial_number == serial_number).first()
-
-    if not mes_info:
-        logging.debug("[Send Message] No matching candidate for the serial number.")
-        return redirect(url_for('index'))  # 該当がない場合
-
-    candidate_id = session.get('candidate_id')# セッションから取得
-    # message = request.form.get('message')
-
-        # メッセージをDBに保存
-    new_message = LoveMessage(
-        serial_number=serial_number,
-        candidate_id=candidate_id
-    )
-
-     # 投票済みのアイドルを取得
-    mes_info = db.session.query(SerialNumber, Candidate).join(Candidate, SerialNumber.candidate_id == Candidate.id).filter(SerialNumber.serial_number == serial_number).first()
-
-    if not mes_info:
-        return redirect(url_for('index'))  # 投票していない場合は別ページへリダイレクト
-
-    candidate = mes_info[1]  # 投票したアイドル
-    db.session.add(new_message)
-    db.session.commit()
-
-    return render_template('message.html', candidate=candidate)
 
 if __name__ == '__main__':
     app.run(debug=True)
